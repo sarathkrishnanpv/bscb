@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
-
+//Welcome page for choosing login or sign up options
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).extension<AppTextTheme>()!;
