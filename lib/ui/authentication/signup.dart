@@ -1,4 +1,17 @@
 import 'package:app/gen/assets.gen.dart';
+import 'package:app/models/user_model.dart';
+import 'package:app/providers/password_view_provider.dart';
+import 'package:app/providers/validator_provider.dart';
+import 'package:app/ui/authentication/otp_screen.dart';
+import 'package:app/utils/themes/app_colors.dart';
+import 'package:app/utils/themes/text_theme.dart';
+import 'package:app/widgets/global_buttons.dart';
+import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:provider/provider.dart';
+
+import 'package:app/gen/assets.gen.dart';
+import 'package:app/models/user_model.dart';
 import 'package:app/providers/password_view_provider.dart';
 import 'package:app/providers/validator_provider.dart';
 import 'package:app/ui/authentication/otp_screen.dart';
@@ -25,6 +38,11 @@ class SignupForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).extension<AppTextTheme>()!;
+    final formProvider = Provider.of<SignupFormProvider>(context);
+    
+    final phoneController = TextEditingController();
+    final passwordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -37,52 +55,58 @@ class SignupForm extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 50),
-                 Center(child: Container(
-                  height: 120,width: 120,
-                  child: Image.asset(Assets.images.verification.path)),),
-               Text(
-                    "Signup",
-                    style: textTheme.appTextBodyTextXlBold,
+                Center(
+                  child: Container(
+                    height: 120, width: 120,
+                    child: Image.asset(Assets.images.verification.path),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Create an account.",
-                    style: textTheme.appTextBodyTextLgRegular,
-                  ),
+                ),
+                Text(
+                  "Signup",
+                  style: textTheme.appTextBodyTextXlBold,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Create an account.",
+                  style: textTheme.appTextBodyTextLgRegular,
+                ),
                 const SizedBox(height: 20),
-                
-                const PhoneNumberField(),
-              
+                PhoneNumberField(controller: phoneController),
                 ChangeNotifierProvider(
                   create: (_) => PasswordVisibilityProvider(),
-                  child: const PasswordField(label: "Password"),
+                  child: PasswordField(controller: passwordController, label: "Password"),
                 ),
                 const SizedBox(height: 20),
                 ChangeNotifierProvider(
                   create: (_) => PasswordVisibilityProvider(),
-                  child: const PasswordField(label: "Confirm Password"),
+                  child: PasswordField(controller: confirmPasswordController, label: "Confirm Password"),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   child: InkWell(
                     onTap: () {
-            
-                       Navigator.push(
+                      if (formProvider.validateForm(
+                        phoneController.text,
+                        passwordController.text,
+                        confirmPasswordController.text
+                      )) {
+                        final user = UserModel(
+                          phoneNumber: phoneController.text,
+                          password: passwordController.text,
+                        );
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>  OtpScreen(textTheme : textTheme),
+                            builder: (context) => OtpScreen(
+                              textTheme: textTheme,
+                              user: user,
+                            ),
                           ),
                         );
-                      // final formProvider = Provider.of<SignupFormProvider>(context, listen: false);
-                      // if (formProvider.validateForm()) {
-                      //   Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) => const OtpScreen(),
-                      //     ),
-                      //   );
-                      // }
+                      } else {
+                        // Handle validation errors
+                      }
                     },
                     child: PrimaryButton(
                       textTheme: textTheme,
@@ -98,16 +122,17 @@ class SignupForm extends StatelessWidget {
     );
   }
 }
-
 class PhoneNumberField extends StatelessWidget {
-  const PhoneNumberField({super.key});
+  final TextEditingController controller;
+
+  const PhoneNumberField({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).extension<AppTextTheme>()!;
-    final formProvider = Provider.of<SignupFormProvider>(context, listen: false);
-
+    
     return IntlPhoneField(
+      controller: controller,
       initialCountryCode: 'IN', // Setting the default country to India
       decoration: InputDecoration(
         labelText: 'Phone Number',
@@ -119,7 +144,7 @@ class PhoneNumberField extends StatelessWidget {
         counterText: '', // This should hide the counter
       ),
       onChanged: (phone) {
-        formProvider.setPhoneNumber(phone.completeNumber);
+        // No need to set value here, it's handled by the controller
       },
       style: textTheme.appTextBodyTextLgRegular,
     );
@@ -127,9 +152,10 @@ class PhoneNumberField extends StatelessWidget {
 }
 
 class PasswordField extends StatelessWidget {
-  const PasswordField({super.key, required this.label});
-
+  final TextEditingController controller;
   final String label;
+
+  const PasswordField({super.key, required this.controller, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -139,9 +165,10 @@ class PasswordField extends StatelessWidget {
     return Consumer<PasswordVisibilityProvider>(
       builder: (context, provider, child) {
         return TextFormField(
+          controller: controller,
           obscureText: !provider.isVisible,
           onChanged: (value) {
-            formProvider.setPassword(value);
+            // Update formProvider with new value if needed
           },
           decoration: InputDecoration(
             labelText: label,

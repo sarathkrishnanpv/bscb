@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:provider/provider.dart';
 
 class SignupFormProvider extends ChangeNotifier {
   String? _phoneNumber;
   String? _password;
+  String? _confirmPassword;
 
   String? get phoneNumber => _phoneNumber;
   String? get password => _password;
+  String? get confirmPassword => _confirmPassword;
 
-  void setPhoneNumber(String value) {
-    _phoneNumber = value;
-    notifyListeners();
-  }
-
-  void setPassword(String value) {
-    _password = value;
-    notifyListeners();
-  }
-
-  bool validateForm() {
-    if (_phoneNumber == null || _phoneNumber!.isEmpty) {
-      print("Phone number is invalid");
+  bool validateForm(String phoneNumber, String password, String confirmPassword) {
+    if (phoneNumber.isEmpty) {
       Fluttertoast.showToast(
         msg: "Please enter a valid phone number",
         toastLength: Toast.LENGTH_SHORT,
@@ -33,8 +23,7 @@ class SignupFormProvider extends ChangeNotifier {
       );
       return false;
     }
-    if (_password == null || _password!.length < 6) {
-      print("Password is invalid");
+    if (password.length < 6) {
       Fluttertoast.showToast(
         msg: "Password must be at least 6 characters",
         toastLength: Toast.LENGTH_SHORT,
@@ -46,6 +35,23 @@ class SignupFormProvider extends ChangeNotifier {
       );
       return false;
     }
+    if (confirmPassword != password) {
+      Fluttertoast.showToast(
+        msg: "Passwords do not match",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return false;
+    }
+    // Update provider values if needed
+    _phoneNumber = phoneNumber;
+    _password = password;
+    _confirmPassword = confirmPassword;
+    notifyListeners();
     return true;
   }
 }

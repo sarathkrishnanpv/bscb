@@ -1,4 +1,7 @@
+import 'package:app/controller/otp_controller.dart';
 import 'package:app/gen/assets.gen.dart';
+import 'package:app/models/user_model.dart';
+import 'package:app/network/firebase_service.dart';
 import 'package:app/ui/home/home_screen.dart';
 import 'package:app/widgets/global_buttons.dart';
 import 'package:flutter/material.dart';
@@ -9,27 +12,43 @@ import 'package:app/utils/themes/text_theme.dart';
 
 class OtpScreen extends StatefulWidget {
   final AppTextTheme textTheme;
+  final UserModel user;
 
-  const OtpScreen({super.key, required  this.textTheme});
+  const OtpScreen({super.key, required this.textTheme, required this.user});
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
 }
 
 class _OtpScreenState extends State<OtpScreen> {
+  late final OtpController _otpController;
   late final SmsRetriever smsRetriever;
   late final TextEditingController pinController;
   late final FocusNode focusNode;
   late final GlobalKey<FormState> formKey;
+  late String sentOtp;
 
   @override
   void initState() {
     super.initState();
+    _otpController = OtpController();
     formKey = GlobalKey<FormState>();
     pinController = TextEditingController();
     focusNode = FocusNode();
-
     smsRetriever = SmsRetrieverImpl(SmartAuth());
+
+    // Generate and send OTP
+    sentOtp = _otpController.generateOtp();
+    _otpController.sendOtpMessage(widget.user.phoneNumber, sentOtp);
+  }
+
+  void verifyOtp() {
+    if (_otpController.verifyOtp(pinController.text, sentOtp)) {
+      _otpController.saveUserDetails(widget.user.phoneNumber, widget.user.password);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Invalid OTP')));
+    }
   }
 
   @override
@@ -41,7 +60,6 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     const focusedBorderColor = AppColors.appGold;
     const fillColor = Color.fromRGBO(243, 246, 249, 0);
     const borderColor = AppColors.primary;
@@ -66,18 +84,16 @@ class _OtpScreenState extends State<OtpScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-                
             children: [
               Column(
-                
                 children: [
-                  Center(child: Image.asset(Assets.images.otp.path),),
+                  Center(child: Image.asset(Assets.images.otp.path)),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Verify Mobile Number",
-                      style: widget.textTheme.appTextBodyTextXlBold,             
-                       textAlign: TextAlign.left,
+                      style: widget.textTheme.appTextBodyTextXlBold,
+                      textAlign: TextAlign.left,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -86,7 +102,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     style: widget.textTheme.appTextBodyTextBaseMedium!.copyWith(color: AppColors.appGold),
                     textAlign: TextAlign.left,
                   ),
-                  SizedBox(height: 40,),
+                  SizedBox(height: 40),
                   Column(
                     children: [
                       Center(
@@ -110,7 +126,6 @@ class _OtpScreenState extends State<OtpScreen> {
                               onChanged: (value) {
                                 debugPrint('onChanged: $value');
                               },
-                              
                               cursor: Column(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -143,31 +158,25 @@ class _OtpScreenState extends State<OtpScreen> {
                         ),
                       ),
                     ],
-                  ), ],
-              ),
-                  
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HomeScreen(),
-                              ),
-                            );
-                          },
-                          child: PrimaryButton(
-                            textTheme:widget.textTheme,
-                            content: "Verify",
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
-               
+                ],
+              ),
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: InkWell(
+                      onTap: () {
+                        verifyOtp();  // Call verifyOtp method to check the entered OTP
+                      },
+                      child: PrimaryButton(
+                        textTheme: widget.textTheme,
+                        content: "Verify",
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -175,8 +184,6 @@ class _OtpScreenState extends State<OtpScreen> {
     );
   }
 }
-
-
 
 class SmsRetrieverImpl implements SmsRetriever {
   const SmsRetrieverImpl(this.smartAuth);

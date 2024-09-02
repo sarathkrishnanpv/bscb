@@ -104,7 +104,7 @@ class PhoneNumberField extends StatelessWidget {
         counterText: '', // This should hide the counter
       ),
       onChanged: (phone) {
-        formProvider.setPhoneNumber(phone.completeNumber);
+        
       },
       style: textTheme.appTextBodyTextLgRegular,
     );
@@ -126,7 +126,7 @@ class PasswordField extends StatelessWidget {
         return TextFormField(
           obscureText: !provider.isVisible,
           onChanged: (value) {
-            formProvider.setPassword(value);
+          
           },
           decoration: InputDecoration(
             labelText: label,
