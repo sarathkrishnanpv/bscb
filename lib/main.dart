@@ -1,21 +1,31 @@
+import 'package:app/providers/password_view_provider.dart';
 import 'package:app/providers/splash_provider.dart';
+import 'package:app/ui/authentication/signup.dart';
 import 'package:app/ui/authentication/splash/splash_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app/ui/authentication/welcome.dart';
 import 'package:app/utils/themes/app_colors.dart';
 import 'package:app/utils/themes/text_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   
   runApp(
-    ChangeNotifierProvider(
-      create: (_) {
-        final provider = SplashScreenProvider();
-        provider.resetSplash(); // Reset splash screen state on app start
-        return provider;
-      },
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = SplashScreenProvider();
+            provider.resetSplash(); // Reset splash screen state on app start
+            return provider;
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PasswordVisibilityProvider(), // Password visibility provider
+        ),
+        // Add more providers if needed
+      ],
       child: MyApp(),
     ),
   );

@@ -27,6 +27,7 @@ class PrimaryButton extends StatelessWidget {
         child: Text(
           content,
           style: textTheme.appTextBodyTextXlBold!.copyWith(color: AppColors.white),
+          
           textAlign: TextAlign.center, // Centers the text within the button
         ),
       ),

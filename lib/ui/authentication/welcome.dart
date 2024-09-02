@@ -36,7 +36,7 @@ class WelcomePage extends StatelessWidget {
           
                const SizedBox(height: 20),
                 Text(
-                  "Welcome to bscb",
+                  "Welcome  bscb",
                   style: textTheme.appTextBodyTextLgBold,
                   textAlign: TextAlign.center,
                 ),

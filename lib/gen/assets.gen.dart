@@ -9,6 +9,31 @@
 
 import 'package:flutter/widgets.dart';
 
+class $AssetsImagesGen {
+  const $AssetsImagesGen();
+
+  /// File path: assets/images/announcements.jpg
+  AssetGenImage get announcements =>
+      const AssetGenImage('assets/images/announcements.jpg');
+
+  /// File path: assets/images/login.jpg
+  AssetGenImage get login => const AssetGenImage('assets/images/login.jpg');
+
+  /// File path: assets/images/otp.png
+  AssetGenImage get otp => const AssetGenImage('assets/images/otp.png');
+
+  /// File path: assets/images/profile.png
+  AssetGenImage get profile => const AssetGenImage('assets/images/profile.png');
+
+  /// File path: assets/images/verification.jpg
+  AssetGenImage get verification =>
+      const AssetGenImage('assets/images/verification.jpg');
+
+  /// List of all assets
+  List<AssetGenImage> get values =>
+      [announcements, login, otp, profile, verification];
+}
+
 class $AssetsLogoGen {
   const $AssetsLogoGen();
 
@@ -25,6 +50,7 @@ class $AssetsLogoGen {
 class Assets {
   Assets._();
 
+  static const $AssetsImagesGen images = $AssetsImagesGen();
   static const $AssetsLogoGen logo = $AssetsLogoGen();
 }
 
