@@ -1,9 +1,7 @@
 import 'package:app/gen/assets.gen.dart';
 import 'package:app/providers/password_view_provider.dart';
 import 'package:app/providers/validator_provider.dart';
-import 'package:app/ui/authentication/otp_screen.dart';
 import 'package:app/ui/home/home_screen.dart';
-import 'package:app/utils/themes/app_colors.dart';
 import 'package:app/utils/themes/navigation/navigation_utils.dart';
 import 'package:app/utils/themes/text_theme.dart';
 import 'package:app/widgets/global_buttons.dart';
